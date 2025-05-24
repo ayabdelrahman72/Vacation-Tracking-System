@@ -1,0 +1,63 @@
+//Employee Actions
+submitNewRequest(int vacationType,Date startDate,Date endDate,String requestTitle,String requestDescription)
+    Request newRequest = createVacationRequest(vacationType,startDate,endDate,requestTitle,requestDescription);
+    String message="";
+    //Assume that pending Approvel state id is 0
+    IF isApprovelNeeded(newRequest) THEN
+        updateRequestStatus(newRequest,0)
+        message="that is a new request pending to approve";
+        notifyManager(newRequest,message)
+    ELSE
+     //Assume that auto Approved state id is 2
+        updateRequestStatus(newRequest, 2);
+        message="the request is auto approved";
+        notifyEmployee(newRequest,message)
+    END IF
+END FUNCTION
+
+
+withdrawOrEditRequest(int requestIdToModify)
+    String message="";
+    //assume that approved status is 1
+    IF getRequestStatus(requestIdToModify) NOT IN (1,2) THEN
+    //assume -1 means failure "can't update or delete"
+       return -1;
+    ELSE
+      //Assume
+        "1-> Withdraw Request"
+        "2-> Edit Request Details"
+        IF modifyChoice IS "1" THEN
+            IF confirmWithdraw() THEN
+                REMOVE_REQUEST(requestIdToModify);
+                 message="Request withdrawn";
+                notifyManager(requestIdToModify, message);
+            ELSE
+                no action needed
+            END IF
+        ELSE IF modifyChoice IS "2" THEN
+            updateVacationRequest(requestIdToModify, newVacationType, newStartDate, newEndDate, newRequestTitle, newRequestDescription);
+            notifyManager(requestIdToModify, message);
+        END IF
+    END IF
+END FUNCTION
+
+//Manager Actions
+
+approveEmployeeRequest(int requestIdToApprove)
+        String message="";
+        //assume approve status 1
+        updateRequestStatus(requestIdToApprove,1);
+        message="Request is approved";
+        notifyEmployee(requestIdToApprove,message);
+
+END FUNCTION
+
+
+declineEmployeeRequest(int requestIdToDecline,String reason)
+         String message="";
+        //assume decline status -1
+        updateRequestStatus(requestIdToApprove,-1,reason);
+        message="Request is decline cause of " + "reason";
+        notifyEmployee(requestIdToApprove,reason);
+
+END FUNCTION
